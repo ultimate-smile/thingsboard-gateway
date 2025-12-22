@@ -1,0 +1,71 @@
+{
+  "server": {
+    "name": "Matrikon.OPC.Simulation.1",
+    "host": "localhost",
+    "pollPeriodInMillis": 5000,
+    "disableSubscriptions": true,
+    "showMap": false,
+    "mapping": [
+      {
+        "deviceNodePattern": "Device1",
+        "deviceNamePattern": "OPC-DA Device 1",
+        "deviceTypePattern": "Sensor",
+        "attributes": [
+          {
+            "key": "temperature",
+            "tag": "Random.Int1",
+            "type": "int"
+          },
+          {
+            "key": "model",
+            "tag": "Random.String",
+            "type": "string"
+          }
+        ],
+        "timeseries": [
+          {
+            "key": "humidity",
+            "tag": "Random.Int2",
+            "type": "int"
+          },
+          {
+            "key": "pressure",
+            "tag": "Random.Real4",
+            "type": "double"
+          }
+        ],
+        "attributes_updates": [
+          {
+            "attributeOnThingsBoard": "sharedAttribute1",
+            "attributeOnDevice": "Random.Int4"
+          }
+        ],
+        "rpc_methods": [
+          {
+            "method": "setValue",
+            "tag": "Random.Int1"
+          }
+        ]
+      },
+      {
+        "deviceNodePattern": "Device2",
+        "deviceNamePattern": "OPC-DA Device 2",
+        "deviceTypePattern": "Controller",
+        "attributes": [
+          {
+            "key": "status",
+            "tag": "Random.Boolean",
+            "type": "bool"
+          }
+        ],
+        "timeseries": [
+          {
+            "key": "speed",
+            "tag": "Random.Int3",
+            "type": "int"
+          }
+        ]
+      }
+    ]
+  }
+}
