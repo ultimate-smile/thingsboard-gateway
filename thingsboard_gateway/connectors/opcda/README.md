@@ -1,13 +1,13 @@
-# OPC DA Connector for ThingsBoard IoT Gateway
+# OPC DA Connector
 
 ## 概述
 
-OPC DA (OLE for Process Control Data Access) 连接器允许 ThingsBoard IoT Gateway 从 OPC DA 服务器采集数据。OPC DA 是一种广泛使用的工业自动化协议标准。
+OPC DA (OLE for Process Control Data Access) 连接器允许 IoT Gateway 从 OPC DA 服务器采集数据。OPC DA 是一种广泛使用的工业自动化协议标准。
 
 ## 功能特性
 
 - **数据采集**: 从 OPC DA 服务器读取标签数据
-- **属性更新**: 支持从 ThingsBoard 更新设备属性到 OPC DA 标签
+- **属性更新**: 支持更新设备属性到 OPC DA 标签
 - **RPC 支持**: 支持读取和写入 OPC DA 标签的 RPC 命令
 - **多设备支持**: 可以配置多个虚拟设备，每个设备有自己的标签映射
 - **时间戳支持**: 支持使用网关时间戳或 OPC 服务器时间戳
