@@ -34,22 +34,68 @@ from thingsboard_gateway.tb_utility.tb_loader import TBModuleLoader
 from thingsboard_gateway.tb_utility.tb_logger import init_logger
 from thingsboard_gateway.tb_utility.tb_utility import TBUtility
 
-# Try import OpenOPC library or install it
+# Try import OpenOPC library with platform detection
+import platform
+import sys
+
+PLATFORM = platform.system()
+USE_MOCK_OPC = False
 installation_required = False
 
+# First, try to import OpenOPC
 try:
     import OpenOPC
-except ImportError:
+    # Test if pythoncom is available (Windows requirement)
+    try:
+        import pythoncom
+        print(f"OpenOPC with pythoncom support detected (Platform: {PLATFORM})")
+    except ImportError:
+        if PLATFORM == 'Windows':
+            # On Windows but pythoncom missing - this is an error
+            print("ERROR: pythoncom not found on Windows. Please install pywin32:")
+            print("  pip install pywin32")
+            print("  python -m pywin32_postinstall -install")
+            raise ImportError("pythoncom is required on Windows for OPC DA")
+        else:
+            # On non-Windows, pythoncom is expected to be missing
+            print(f"Warning: Running on {PLATFORM}, pythoncom not available")
+            print("Consider using OpenOPC Gateway Server on Windows or Mock mode for development")
+except ImportError as import_err:
     installation_required = True
+    print(f"OpenOPC not found: {import_err}")
 
+# Install OpenOPC if needed
 if installation_required:
     print("OPC DA library (OpenOPC) not found, attempting to install...")
     try:
+        # On non-Windows, also suggest mock mode
+        if PLATFORM != 'Windows':
+            print(f"Note: You are on {PLATFORM}. OPC DA requires Windows or OpenOPC Gateway Server.")
+            print("For development/testing, you can use Mock mode by setting useMockOpc: true in config")
+        
         TBUtility.install_package("OpenOPC-Python3x")
         import OpenOPC
+        
+        # Try pywin32 on Windows
+        if PLATFORM == 'Windows':
+            try:
+                import pythoncom
+            except ImportError:
+                print("Installing pywin32 for Windows COM support...")
+                TBUtility.install_package("pywin32")
+                print("Please run: python -m pywin32_postinstall -install")
     except Exception as e:
         print(f"Failed to install OpenOPC: {e}")
-        print("Please install manually: pip install OpenOPC-Python3x")
+        print("Please install manually:")
+        print("  pip install OpenOPC-Python3x")
+        if PLATFORM == 'Windows':
+            print("  pip install pywin32")
+            print("  python -m pywin32_postinstall -install")
+        else:
+            print(f"Note: On {PLATFORM}, consider using:")
+            print("  1. OpenOPC Gateway Server (runs on Windows)")
+            print("  2. Mock mode for development (useMockOpc: true in config)")
+            print("  3. Migrate to OPC UA for cross-platform support")
 
 DEFAULT_UPLINK_CONVERTER = 'OpcDaUplinkConverter'
 
@@ -115,7 +161,29 @@ class OpcDaConnector(Connector, Thread):
         self.__server_conf = self.__config.get('server', {})
         self.__opc_server = self.__server_conf.get('name', 'Matrikon.OPC.Simulation.1')
         self.__opc_host = self.__server_conf.get('host', 'localhost')
+        self.__use_mock_opc = self.__server_conf.get('useMockOpc', False)
         self.__opc_client: Optional[Any] = None
+        
+        # Check for mock mode
+        if self.__use_mock_opc:
+            self.__log.warning("Mock OPC mode enabled - using simulated OPC server")
+            try:
+                from thingsboard_gateway.connectors.opcda import mock_openopc
+                global OpenOPC
+                OpenOPC = mock_openopc
+                global USE_MOCK_OPC
+                USE_MOCK_OPC = True
+                self.__log.info("Mock OpenOPC module loaded successfully")
+            except ImportError as e:
+                self.__log.error(f"Failed to load mock OpenOPC: {e}")
+        elif PLATFORM != 'Windows':
+            self.__log.warning(
+                f"Running on {PLATFORM}. OPC DA typically requires Windows. "
+                "If connection fails, consider:\n"
+                "  1. Using OpenOPC Gateway Server (Windows)\n"
+                "  2. Setting 'useMockOpc: true' for development\n"
+                "  3. Migrating to OPC UA for cross-platform support"
+            )
         
         # Polling configuration
         self.__poll_period = self.__server_conf.get('pollPeriodInMillis', 5000) / 1000
@@ -301,6 +369,10 @@ class OpcDaConnector(Connector, Thread):
         try:
             self.__log.info(f"Connecting to OPC DA server '{self.__opc_server}' on host '{self.__opc_host}'...")
             
+            # Check if mock mode is active
+            if USE_MOCK_OPC or self.__use_mock_opc:
+                self.__log.info("Using Mock OPC client")
+            
             self.__opc_client = OpenOPC.client()
             self.__opc_client.connect(self.__opc_server, self.__opc_host)
             
@@ -313,8 +385,50 @@ class OpcDaConnector(Connector, Thread):
             
             return True
             
+        except NameError as ne:
+            # Catch specific pythoncom errors
+            if 'pythoncom' in str(ne):
+                self.__log.error(
+                    "pythoncom is not defined! This usually means:\n"
+                    "  1. On Windows: pywin32 is not installed or not configured properly\n"
+                    "     Solution: pip install pywin32 && python -m pywin32_postinstall -install\n"
+                    "  2. On macOS/Linux: OPC DA requires Windows or OpenOPC Gateway Server\n"
+                    "     Solutions:\n"
+                    "       - Use OpenOPC Gateway Server running on Windows\n"
+                    "       - Enable mock mode: set 'useMockOpc: true' in server config\n"
+                    "       - Consider migrating to OPC UA (cross-platform)\n"
+                    f"  Current platform: {PLATFORM}"
+                )
+            else:
+                self.__log.error(f"NameError during connection: {ne}")
+            self.__opc_client = None
+            return False
+            
         except Exception as e:
-            self.__log.error(f"Failed to connect to OPC DA server: {e}")
+            error_msg = str(e)
+            
+            # Provide helpful error messages
+            if 'pythoncom' in error_msg.lower():
+                self.__log.error(
+                    f"pythoncom error: {e}\n"
+                    "This indicates a Windows COM/DCOM issue. Check:\n"
+                    "  - pywin32 is installed: pip list | grep pywin32\n"
+                    "  - pywin32 is configured: python -m pywin32_postinstall -install\n"
+                    "  - Running on Windows (OPC DA requires Windows)\n"
+                    f"Current platform: {PLATFORM}"
+                )
+            elif 'com_error' in error_msg.lower() or 'invalid class string' in error_msg.lower():
+                self.__log.error(
+                    f"OPC Server error: {e}\n"
+                    "This indicates the OPC server is not registered or accessible. Check:\n"
+                    f"  - OPC Server '{self.__opc_server}' is installed\n"
+                    "  - OPC Server is running\n"
+                    "  - ProgID is correct (use OPC Enum to list servers)\n"
+                    "  - DCOM permissions are configured correctly"
+                )
+            else:
+                self.__log.error(f"Failed to connect to OPC DA server: {e}")
+            
             self.__opc_client = None
             return False
     

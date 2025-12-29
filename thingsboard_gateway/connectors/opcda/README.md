@@ -15,11 +15,36 @@ OPC DA (OLE for Process Control Data Access) 连接器允许 IoT Gateway 从 OPC
 
 ## 依赖要求
 
+### Windows 平台
+
 ```bash
+pip install pywin32
+python -m pywin32_postinstall -install
 pip install OpenOPC-Python3x
 ```
 
-**注意**: OPC DA 通常需要 Windows 操作系统，因为它基于 DCOM 技术。对于 Linux 系统，可能需要使用 OPC DA 网关或代理。
+### macOS/Linux 平台
+
+```bash
+# 开发模式 (使用 Mock)
+# 无需安装额外依赖，连接器内置 Mock 模式
+
+# 生产模式 (使用 OpenOPC Gateway)
+pip install OpenOPC-Python3x
+# 需要在 Windows 机器上运行 OpenOPC Gateway Server
+```
+
+**重要**: 
+- OPC DA 是基于 Windows DCOM 技术的协议，主要在 Windows 上运行
+- macOS/Linux 用户可以使用:
+  - **Mock 模式** (开发/测试): 设置 `"useMockOpc": true`
+  - **Gateway 模式** (生产): 通过 Windows Gateway Server 连接
+  - **OPC UA** (推荐): 考虑迁移到跨平台的 OPC UA 协议
+
+**故障排除**: 如果遇到 `pythoncom is not defined` 错误，请参考:
+- [TROUBLESHOOTING_PYTHONCOM.md](TROUBLESHOOTING_PYTHONCOM.md) - pythoncom 错误详细解决方案
+- [PLATFORM_GUIDE.md](PLATFORM_GUIDE.md) - 跨平台使用指南
+- 运行诊断工具: `python diagnose_pythoncom.py`
 
 ## 配置说明
 
@@ -62,6 +87,14 @@ pip install OpenOPC-Python3x
 | host | string | 否 | localhost | OPC DA 服务器主机地址 |
 | timeoutInMillis | integer | 否 | 5000 | 连接超时时间（毫秒） |
 | pollPeriodInMillis | integer | 否 | 5000 | 数据采集周期（毫秒） |
+| useMockOpc | boolean | 否 | false | 是否使用 Mock 模式（用于开发/测试，适用于非 Windows 平台） |
+
+**Mock 模式说明**:
+- 设置 `"useMockOpc": true` 将使用模拟的 OPC 客户端
+- 适用于开发、测试、CI/CD 等场景
+- 在 macOS/Linux 上开发时非常有用
+- 生成随机模拟数据，不连接真实的 OPC 服务器
+- **不要在生产环境使用 Mock 模式**
 
 ### 设备映射 (mapping)
 
