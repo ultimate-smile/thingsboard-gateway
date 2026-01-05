@@ -33,6 +33,7 @@ DEB_INSTALLATION_EXTENSION_PATH = '/var/lib/thingsboard_gateway/extensions'.repl
 class TBModuleLoader:
     PATHS = []
     LOADED_CONNECTORS = {}
+    PLUGIN_PATHS = []  # 动态插件路径
 
     @staticmethod
     def find_paths():
@@ -44,17 +45,38 @@ class TBModuleLoader:
         TBModuleLoader.PATHS.append(root_path + EXTENSIONS_FOLDER)
         TBModuleLoader.PATHS.append(root_path + CONNECTORS_FOLDER)
         TBModuleLoader.PATHS.append(root_path + GRPC_CONNECTORS_FOLDER)
+    
+    @staticmethod
+    def add_plugin_path(plugin_path):
+        """添加插件路径到加载器"""
+        if plugin_path not in TBModuleLoader.PLUGIN_PATHS:
+            TBModuleLoader.PLUGIN_PATHS.append(plugin_path)
+            log.info("Added plugin path: %s", plugin_path)
+    
+    @staticmethod
+    def remove_plugin_path(plugin_path):
+        """从加载器移除插件路径"""
+        if plugin_path in TBModuleLoader.PLUGIN_PATHS:
+            TBModuleLoader.PLUGIN_PATHS.remove(plugin_path)
+            log.info("Removed plugin path: %s", plugin_path)
+    
+    @staticmethod
+    def get_all_paths():
+        """获取所有搜索路径（包括插件路径）"""
+        if len(TBModuleLoader.PATHS) == 0:
+            TBModuleLoader.find_paths()
+        # 插件路径优先，这样插件可以覆盖内置连接器
+        return TBModuleLoader.PLUGIN_PATHS + TBModuleLoader.PATHS
 
     @staticmethod
     def import_module(extension_type, module_name):
         errors = []
-        if len(TBModuleLoader.PATHS) == 0:
-            TBModuleLoader.find_paths()
+        all_paths = TBModuleLoader.get_all_paths()
         buffered_module_name = extension_type + module_name
         if TBModuleLoader.LOADED_CONNECTORS.get(buffered_module_name) is not None:
             return TBModuleLoader.LOADED_CONNECTORS[buffered_module_name]
         try:
-            for current_path in TBModuleLoader.PATHS:
+            for current_path in all_paths:
                 current_extension_path = current_path + path.sep + extension_type
                 if path.exists(current_extension_path):
                     for file in listdir(current_extension_path):
@@ -86,10 +108,9 @@ class TBModuleLoader:
     @staticmethod
     def import_package_files(extension_type, package_name):
         errors = []
-        if len(TBModuleLoader.PATHS) == 0:
-            TBModuleLoader.find_paths()
+        all_paths = TBModuleLoader.get_all_paths()
         try:
-            for current_path in TBModuleLoader.PATHS:
+            for current_path in all_paths:
                 current_extension_path = current_path + path.sep + extension_type
                 package_path = current_extension_path + path.sep + package_name
                 if path.exists(package_path):

@@ -1,0 +1,29 @@
+{
+  "name": "example_connector_plugin",
+  "version": "1.0.0",
+  "plugin_type": "connector",
+  "connector_type": "example",
+  "display_name": "Example Connector",
+  "description": "An example connector plugin for demonstration purposes",
+  "author": "ThingsBoard Team",
+  "license": "Apache-2.0",
+  "homepage": "https://github.com/thingsboard/thingsboard-gateway",
+  "python_requires": ">=3.7",
+  "dependencies": [],
+  "entry_point": "ExampleConnector",
+  "module_name": "example_connector",
+  "gateway_version": ">=3.0",
+  "config_template": {
+    "broker": {
+      "name": "Example Broker",
+      "host": "localhost",
+      "port": 1883
+    },
+    "devices": [
+      {
+        "deviceName": "Example Device",
+        "deviceType": "default"
+      }
+    ]
+  }
+}
