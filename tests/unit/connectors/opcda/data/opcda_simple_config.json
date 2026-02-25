@@ -1,0 +1,39 @@
+{
+  "server": {
+    "name": "Matrikon.OPC.Simulation.1",
+    "host": "localhost",
+    "timeoutInMillis": 5000,
+    "pollPeriodInMillis": 5000
+  },
+  "mapping": [
+    {
+      "deviceInfo": {
+        "deviceNameExpression": "Simulation Device",
+        "deviceProfileExpression": "default"
+      },
+      "timeseries": [
+        {
+          "key": "temperature",
+          "tag": "Random.Real8"
+        },
+        {
+          "key": "counter",
+          "tag": "Random.Int4"
+        }
+      ],
+      "attributes": [
+        {
+          "key": "status",
+          "tag": "Random.String"
+        }
+      ],
+      "attributes_updates": [
+        {
+          "key": "setpoint",
+          "tag": "Bucket Brigade.Real8"
+        }
+      ],
+      "rpc_methods": []
+    }
+  ]
+}

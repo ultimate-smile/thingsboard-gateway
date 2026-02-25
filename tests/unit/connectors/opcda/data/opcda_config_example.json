@@ -1,0 +1,95 @@
+{
+  "OpcDa": {
+    "name": "OPC DA Connector",
+    "type": "opcda",
+    "logLevel": "INFO",
+    "configuration": "opcda.json",
+    "configurationJson": {
+      "server": {
+        "name": "Matrikon.OPC.Simulation.1",
+        "host": "localhost",
+        "timeoutInMillis": 5000,
+        "pollPeriodInMillis": 5000
+      },
+      "mapping": [
+        {
+          "deviceInfo": {
+            "deviceNameExpression": "OPC DA Device 1",
+            "deviceProfileExpression": "default"
+          },
+          "timeseries": [
+            {
+              "key": "temperature",
+              "tag": "Random.Int4",
+              "timestampLocation": "gateway"
+            },
+            {
+              "key": "humidity",
+              "tag": "Random.Real8",
+              "timestampLocation": "source"
+            },
+            {
+              "key": "pressure",
+              "tag": "Bucket Brigade.Int4"
+            }
+          ],
+          "attributes": [
+            {
+              "key": "deviceType",
+              "tag": "Random.String"
+            },
+            {
+              "key": "location",
+              "tag": "Random.String"
+            }
+          ],
+          "attributes_updates": [
+            {
+              "key": "setpoint",
+              "tag": "Bucket Brigade.Real8"
+            }
+          ],
+          "rpc_methods": [
+            {
+              "method": "read",
+              "params": {
+                "tag": "Random.Int4"
+              }
+            },
+            {
+              "method": "write",
+              "params": {
+                "tag": "Bucket Brigade.Int4",
+                "value": 100
+              }
+            }
+          ]
+        },
+        {
+          "deviceInfo": {
+            "deviceNameExpression": "OPC DA Device 2",
+            "deviceProfileExpression": "sensor"
+          },
+          "timeseries": [
+            {
+              "key": "value1",
+              "tag": "Random.Int1"
+            },
+            {
+              "key": "value2",
+              "tag": "Random.Int2"
+            }
+          ],
+          "attributes": [
+            {
+              "key": "model",
+              "tag": "Random.String"
+            }
+          ],
+          "attributes_updates": [],
+          "rpc_methods": []
+        }
+      ]
+    }
+  }
+}

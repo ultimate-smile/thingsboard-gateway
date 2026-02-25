@@ -1,0 +1,64 @@
+{
+  "server": {
+    "name": "Matrikon.OPC.Simulation.1",
+    "host": "localhost",
+    "timeoutInMillis": 5000,
+    "pollPeriodInMillis": 5000,
+    "useMockOpc": true
+  },
+  "mapping": [
+    {
+      "deviceInfo": {
+        "deviceNameExpression": "Mock Simulation Device",
+        "deviceProfileExpression": "default"
+      },
+      "timeseries": [
+        {
+          "key": "temperature",
+          "tag": "Random.Real8"
+        },
+        {
+          "key": "counter",
+          "tag": "Random.Int4"
+        },
+        {
+          "key": "sine_wave",
+          "tag": "Triangle Waves.Real8"
+        },
+        {
+          "key": "ramp_value",
+          "tag": "Saw-toothed Waves.Real8"
+        }
+      ],
+      "attributes": [
+        {
+          "key": "status",
+          "tag": "Bucket.Brigade.String"
+        },
+        {
+          "key": "enabled",
+          "tag": "Random.Boolean"
+        }
+      ],
+      "attributes_updates": [
+        {
+          "key": "setpoint",
+          "tag": "Bucket.Brigade.Real8"
+        }
+      ],
+      "rpc_methods": [
+        {
+          "method": "read",
+          "params": "Random.Int4"
+        },
+        {
+          "method": "write",
+          "params": {
+            "tag": "Bucket.Brigade.Real8",
+            "value": 0
+          }
+        }
+      ]
+    }
+  ]
+}

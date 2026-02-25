@@ -173,6 +173,9 @@ class TBGatewayService:
 
         self.__sync_devices_shared_attributes_on_connect = self.__config['thingsboard'].get('syncDevicesSharedAttributesOnConnect', True)
 
+        # 初始化插件系统
+        self.__init_plugin_system()
+
         self.__connectors_not_found = False
         self._load_connectors()
         self.__connectors_init_start_success = True
@@ -324,6 +327,20 @@ class TBGatewayService:
         self.__added_devices = {}
         self.__disconnected_devices = {}
         self.__events = []
+        self.__plugin_integration = None
+    
+    def __init_plugin_system(self):
+        """初始化插件系统"""
+        try:
+            from thingsboard_gateway.gateway.plugin_system.gateway_plugin_integration import create_plugin_integration
+            self.__plugin_integration = create_plugin_integration(self)
+            if self.__plugin_integration:
+                log.info("Plugin system initialized successfully")
+            else:
+                log.info("Plugin system is disabled or unavailable")
+        except Exception as e:
+            log.warning("Failed to initialize plugin system: %s", e)
+            log.debug("Plugin system initialization error:", exc_info=True)
         self.__grpc_connectors = {}
         self._default_connectors = DEFAULT_CONNECTORS
 
