@@ -328,19 +328,6 @@ class TBGatewayService:
         self.__disconnected_devices = {}
         self.__events = []
         self.__plugin_integration = None
-    
-    def __init_plugin_system(self):
-        """初始化插件系统"""
-        try:
-            from thingsboard_gateway.gateway.plugin_system.gateway_plugin_integration import create_plugin_integration
-            self.__plugin_integration = create_plugin_integration(self)
-            if self.__plugin_integration:
-                log.info("Plugin system initialized successfully")
-            else:
-                log.info("Plugin system is disabled or unavailable")
-        except Exception as e:
-            log.warning("Failed to initialize plugin system: %s", e)
-            log.debug("Plugin system initialization error:", exc_info=True)
         self.__grpc_connectors = {}
         self._default_connectors = DEFAULT_CONNECTORS
 
@@ -378,10 +365,36 @@ class TBGatewayService:
             "restart": {"function": self.restart_program, "arguments": ()},
             "reboot": {"function": subprocess.call, "arguments": (["shutdown", "-r", "-t", "0"],)},
         }
+
+    def __init_plugin_system(self):
+        """初始化插件系统"""
+        try:
+            from thingsboard_gateway.gateway.plugin_system.gateway_plugin_integration import create_plugin_integration
+            self.__plugin_integration = create_plugin_integration(self)
+            if self.__plugin_integration:
+                log.info("Plugin system initialized successfully")
+            else:
+                log.info("Plugin system is disabled or unavailable")
+        except Exception as e:
+            log.warning("Failed to initialize plugin system: %s", e)
+            log.debug("Plugin system initialization error:", exc_info=True)
         self.async_device_actions = {
             DeviceActions.CONNECT: self.add_device,
             DeviceActions.DISCONNECT: self.del_device
         }
+
+    def __init_plugin_system(self):
+        """初始化插件系统"""
+        try:
+            from thingsboard_gateway.gateway.plugin_system.gateway_plugin_integration import create_plugin_integration
+            self.__plugin_integration = create_plugin_integration(self)
+            if self.__plugin_integration:
+                log.info("Plugin system initialized successfully")
+            else:
+                log.info("Plugin system is disabled or unavailable")
+        except Exception as e:
+            log.warning("Failed to initialize plugin system: %s", e)
+            log.debug("Plugin system initialization error:", exc_info=True)
 
     @staticmethod
     def __load_general_config(config_file):

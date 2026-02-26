@@ -182,7 +182,7 @@ def create_plugin_integration(gateway_service) -> Optional[GatewayPluginIntegrat
     """
     try:
         # 从网关配置中读取插件系统配置
-        plugin_config = gateway_service._TBGatewayService__config.get('plugins', {})
+        plugin_config = gateway_service.config.get('plugins', {})
         
         if not plugin_config.get('enabled', True):
             log.info("Plugin system is disabled in configuration")
