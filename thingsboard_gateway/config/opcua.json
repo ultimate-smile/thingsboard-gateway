@@ -1,15 +1,11 @@
 {
   "server": {
-    "url": "localhost:4840/freeopcua/server/",
+    "url": "opc.tcp://127.0.0.1:53530/OPCUA/SimulationServer",
     "timeoutInMillis": 5000,
     "scanPeriodInMillis": 3600000,
     "pollPeriodInMillis": 5000,
     "enableSubscriptions": true,
     "subCheckPeriodInMillis": 100,
-    "subDataMaxBatchSize": 1000,
-    "subDataMinBatchCreationTimeMs": 200,
-    "subscriptionProcessBatchSize": 2000,
-    "sessionTimeoutInMillis": 120000,
     "showMap": false,
     "security": "Basic128Rsa15",
     "identity": {
@@ -18,57 +14,26 @@
   },
   "mapping": [
     {
-      "deviceNodePattern": "Root\\.Objects\\.Device1",
       "deviceNodeSource": "path",
+      "deviceNodePattern": "Root\\.Objects\\.Objects\\.Simulation",
       "deviceInfo": {
-        "deviceNameExpression": "Device ${Root\\.Objects\\.Device1\\.serialNumber}",
-        "deviceNameExpressionSource": "path",
-        "deviceProfileExpression": "Device",
-        "deviceProfileExpressionSource": "constant"
+        "deviceNameExpression": "${ns=3;s=85/0:Simulation}",
+        "deviceNameExpressionSource": "identifier",
+        "deviceProfileExpressionSource": "identifier",
+        "deviceProfileExpression": "${ns=3;i=1015}"
       },
-      "attributes": [
-        {
-          "key": "temperature °C",
-          "type": "path",
-          "value": "${ns=2;i=5}"
-        }
-      ],
       "timeseries": [
         {
-          "key": "humidity",
-          "type": "path",
-          "value": "${Root\\.Objects\\.Device1\\.TemperatureAndHumiditySensor\\.Humidity}"
-        },
-        {
-          "key": "batteryLevel",
-          "type": "path",
-          "value": "${Battery\\.batteryLevel}"
-        }
-      ],
-      "rpc_methods": [
-        {
-          "method": "multiply",
-          "arguments": [
-            {
-              "type": "integer",
-              "value": 2
-            },
-            {
-              "type": "integer",
-              "value": 4
-            }
-          ]
-        }
-      ],
-      "attributes_updates": [
-        {
-          "key": "deviceName",
-          "type": "path",
-          "value": "Root\\.Objects\\.Device1\\.serialNumber"
+          "key": "tag1",
+          "type": "identifier",
+          "value": "${ns=3;i=1008}"
         }
       ]
     }
-  ]
+  ],
+  "logLevel": "INFO",
+  "name": "opcua",
+  "enableRemoteLogging": false,
+  "id": "1270ed83-a808-4708-9f1c-dc7cb3656371",
+  "configVersion": "3.8.1"
 }
-
-
