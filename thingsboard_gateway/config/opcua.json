@@ -17,10 +17,10 @@
       "deviceNodeSource": "identifier",
       "deviceNodePattern": "Root\\.Objects\\.Simulation",
       "deviceInfo": {
-        "deviceNameExpression": "${ns=3;s=85/0:Simulation}",
+        "deviceNameExpression": "Simulation",
         "deviceNameExpressionSource": "identifier",
         "deviceProfileExpressionSource": "identifier",
-        "deviceProfileExpression": "${ns=3;i=1015}"
+        "deviceProfileExpression": "default"
       },
       "attributes": [],
       "timeseries": [
