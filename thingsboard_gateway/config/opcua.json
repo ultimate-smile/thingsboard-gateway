@@ -14,26 +14,29 @@
   },
   "mapping": [
     {
-      "deviceNodeSource": "path",
-      "deviceNodePattern": "Root\\.Objects\\.Objects\\.Simulation",
+      "deviceNodeSource": "identifier",
+      "deviceNodePattern": "Root\\.Objects\\.Simulation",
       "deviceInfo": {
         "deviceNameExpression": "${ns=3;s=85/0:Simulation}",
         "deviceNameExpressionSource": "identifier",
         "deviceProfileExpressionSource": "identifier",
         "deviceProfileExpression": "${ns=3;i=1015}"
       },
+      "attributes": [],
       "timeseries": [
         {
           "key": "tag1",
           "type": "identifier",
           "value": "${ns=3;i=1008}"
         }
-      ]
+      ],
+      "rpc_methods": [],
+      "attributes_updates": []
     }
   ],
-  "logLevel": "INFO",
   "name": "opcua",
-  "enableRemoteLogging": false,
   "id": "1270ed83-a808-4708-9f1c-dc7cb3656371",
+  "logLevel": "INFO",
+  "enableRemoteLogging": false,
   "configVersion": "3.8.1"
 }
