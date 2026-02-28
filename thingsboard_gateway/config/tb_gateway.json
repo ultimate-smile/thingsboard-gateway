@@ -1,6 +1,6 @@
 {
   "thingsboard": {
-    "host": "thingsboard.cloud",
+    "host": "127.0.0.1",
     "port": 1883,
     "remoteShell": false,
     "remoteConfiguration": true,
@@ -21,7 +21,7 @@
     "handleDeviceRenaming": true,
     "security": {
       "type": "accessToken",
-      "accessToken": "YOUR_ACCESS_TOKEN"
+      "accessToken": "vatngpwOzwuqc4CojQkj"
     },
     "qos": 1,
     "reportStrategy": {
@@ -61,5 +61,11 @@
     "minTimeBetweenPingsMs": 10000,
     "minPingIntervalWithoutDataMs": 5000
   },
-  "connectors": []
+  "connectors": [
+    {
+      "type": "opcua",
+      "name": "opcua",
+      "configuration": "opcua.json"
+    }
+  ]
 }
