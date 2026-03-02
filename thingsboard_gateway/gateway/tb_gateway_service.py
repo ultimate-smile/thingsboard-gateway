@@ -173,6 +173,10 @@ class TBGatewayService:
 
         self.__sync_devices_shared_attributes_on_connect = self.__config['thingsboard'].get('syncDevicesSharedAttributesOnConnect', True)
 
+        # 确保 thingsboard_gateway.connectors 包已载入 sys.modules，
+        # 以便插件路径能正确注册到其 __path__
+        import thingsboard_gateway.connectors  # noqa: F401
+
         # 初始化插件系统
         self.__init_plugin_system()
 

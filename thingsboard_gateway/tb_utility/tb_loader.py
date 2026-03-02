@@ -49,16 +49,47 @@ class TBModuleLoader:
     @staticmethod
     def add_plugin_path(plugin_path):
         """添加插件路径到加载器"""
-        if plugin_path not in TBModuleLoader.PLUGIN_PATHS:
-            TBModuleLoader.PLUGIN_PATHS.append(plugin_path)
-            log.info("Added plugin path: %s", plugin_path)
-    
+        import sys
+        plugin_path = path.abspath(plugin_path)
+        plugin_root = plugin_path
+        if path.exists(path.join(plugin_path, "plugin.json")):
+            # plugin_path points to a specific connector directory (e.g., .../plugins/opcua)
+            # use its parent so loader can find <root>/<connector_type>
+            plugin_root = path.dirname(plugin_path)
+
+        if plugin_root not in TBModuleLoader.PLUGIN_PATHS:
+            TBModuleLoader.PLUGIN_PATHS.append(plugin_root)
+            log.info("Added plugin path: %s", plugin_root)
+
+        # 将插件根目录注册到 thingsboard_gateway.connectors.__path__，
+        # 使插件内部的绝对导入（如 from thingsboard_gateway.connectors.opcua.xxx import ...）
+        # 能被 Python 包系统正确解析。
+        connectors_pkg = sys.modules.get('thingsboard_gateway.connectors')
+        if connectors_pkg and hasattr(connectors_pkg, '__path__'):
+            if plugin_root not in list(connectors_pkg.__path__):
+                connectors_pkg.__path__.append(plugin_root)
+                log.info("Registered %s into thingsboard_gateway.connectors.__path__", plugin_root)
+
     @staticmethod
     def remove_plugin_path(plugin_path):
         """从加载器移除插件路径"""
-        if plugin_path in TBModuleLoader.PLUGIN_PATHS:
-            TBModuleLoader.PLUGIN_PATHS.remove(plugin_path)
-            log.info("Removed plugin path: %s", plugin_path)
+        import sys
+        plugin_path = path.abspath(plugin_path)
+        plugin_root = plugin_path
+        if path.exists(path.join(plugin_path, "plugin.json")):
+            plugin_root = path.dirname(plugin_path)
+
+        if plugin_root in TBModuleLoader.PLUGIN_PATHS:
+            TBModuleLoader.PLUGIN_PATHS.remove(plugin_root)
+            log.info("Removed plugin path: %s", plugin_root)
+
+        # 同步从 thingsboard_gateway.connectors.__path__ 中移除
+        connectors_pkg = sys.modules.get('thingsboard_gateway.connectors')
+        if connectors_pkg and hasattr(connectors_pkg, '__path__'):
+            try:
+                connectors_pkg.__path__.remove(plugin_root)
+            except ValueError:
+                pass
     
     @staticmethod
     def get_all_paths():
