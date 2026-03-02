@@ -53,7 +53,7 @@ cd examples/example_plugin
 zip -r example_connector_plugin.zip .
 
 # 安装插件
-python ../../tools/plugin_installer.py install example_connector_plugin.zip
+python ../../thingsboard_gateway/tools/plugin_installer.py install example_connector_plugin.zip
 ```
 
 ## 使用

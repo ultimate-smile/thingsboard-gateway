@@ -64,7 +64,7 @@ thingsboard_gateway/
 
 ### 命令行工具（2个）
 ```
-tools/
+thingsboard_gateway/tools/
 ├── plugin_packager.py         (175行 - 打包工具)
 └── plugin_installer.py        (278行 - 安装工具)
 ```
@@ -115,7 +115,7 @@ verify_plugin_system.sh        (验证脚本)
 
 ```bash
 # 使用打包工具打包现有连接器
-python tools/plugin_packager.py \
+python thingsboard_gateway/tools/plugin_packager.py \
   thingsboard_gateway/connectors/opcua \
   -o opcua_plugin.zip \
   -t opcua \
@@ -127,7 +127,7 @@ python tools/plugin_packager.py \
 
 ```bash
 # 方法1: 命令行工具
-python tools/plugin_installer.py install opcua_plugin.zip
+python thingsboard_gateway/tools/plugin_installer.py install opcua_plugin.zip
 
 # 方法2: REST API
 curl -X POST http://localhost:9001/api/plugins/upload \
@@ -304,23 +304,23 @@ python tests/test_plugin_system.py
 
 ```bash
 # 打包插件
-python tools/plugin_packager.py SOURCE_DIR -o OUTPUT.zip -t TYPE -v VERSION
+python thingsboard_gateway/tools/plugin_packager.py SOURCE_DIR -o OUTPUT.zip -t TYPE -v VERSION
 
 # 列出插件
-python tools/plugin_installer.py list
+python thingsboard_gateway/tools/plugin_installer.py list
 
 # 安装插件
-python tools/plugin_installer.py install PLUGIN.zip
+python thingsboard_gateway/tools/plugin_installer.py install PLUGIN.zip
 
 # 卸载插件
-python tools/plugin_installer.py uninstall PLUGIN_NAME
+python thingsboard_gateway/tools/plugin_installer.py uninstall PLUGIN_NAME
 
 # 启用/禁用
-python tools/plugin_installer.py enable PLUGIN_NAME
-python tools/plugin_installer.py disable PLUGIN_NAME
+python thingsboard_gateway/tools/plugin_installer.py enable PLUGIN_NAME
+python thingsboard_gateway/tools/plugin_installer.py disable PLUGIN_NAME
 
 # 查看详情
-python tools/plugin_installer.py info PLUGIN_NAME
+python thingsboard_gateway/tools/plugin_installer.py info PLUGIN_NAME
 
 # REST API
 curl http://localhost:9001/api/plugins
@@ -337,7 +337,7 @@ curl -X DELETE http://localhost:9001/api/plugins/PLUGIN_NAME
 
 2. **打包现有连接器**:
    ```bash
-   python tools/plugin_packager.py \
+   python thingsboard_gateway/tools/plugin_packager.py \
      thingsboard_gateway/connectors/YOUR_CONNECTOR \
      -o your_connector_plugin.zip \
      -t your_type \

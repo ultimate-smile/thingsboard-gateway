@@ -76,16 +76,16 @@ my_connector_plugin.zip
 
 ```bash
 # 列出所有插件
-python tools/plugin_installer.py list
+python thingsboard_gateway/tools/plugin_installer.py list
 
 # 安装插件
-python tools/plugin_installer.py install /path/to/plugin.zip
+python thingsboard_gateway/tools/plugin_installer.py install /path/to/plugin.zip
 
 # 卸载插件
-python tools/plugin_installer.py uninstall plugin_name
+python thingsboard_gateway/tools/plugin_installer.py uninstall plugin_name
 
 # 查看插件信息
-python tools/plugin_installer.py info plugin_name
+python thingsboard_gateway/tools/plugin_installer.py info plugin_name
 ```
 
 #### 方法2: 使用REST API
@@ -179,7 +179,7 @@ class MyConnector(Connector):
 #### 方法1: 使用打包工具
 
 ```bash
-python tools/plugin_packager.py \
+python thingsboard_gateway/tools/plugin_packager.py \
   /path/to/connector/source \
   -o my_connector_plugin.zip \
   -t myprotocol \
@@ -204,13 +204,13 @@ zip -r my_connector_plugin.zip .
 
 ```bash
 # 基本安装
-python tools/plugin_installer.py install my_connector_plugin.zip
+python thingsboard_gateway/tools/plugin_installer.py install my_connector_plugin.zip
 
 # 强制安装（覆盖已有版本）
-python tools/plugin_installer.py install my_connector_plugin.zip --force
+python thingsboard_gateway/tools/plugin_installer.py install my_connector_plugin.zip --force
 
 # 指定配置目录
-python tools/plugin_installer.py -c /path/to/config install plugin.zip
+python thingsboard_gateway/tools/plugin_installer.py -c /path/to/config install plugin.zip
 ```
 
 ### 使用Python API
@@ -328,7 +328,7 @@ POST /api/plugins/{plugin_name}/disable
 
 ```bash
 # 1. 打包连接器
-python tools/plugin_packager.py \
+python thingsboard_gateway/tools/plugin_packager.py \
   thingsboard_gateway/connectors/opcua \
   -o opcua_connector_plugin.zip \
   -t opcua \
@@ -338,10 +338,10 @@ python tools/plugin_packager.py \
   --deps "asyncua==1.1.5"
 
 # 2. 安装插件
-python tools/plugin_installer.py install opcua_connector_plugin.zip
+python thingsboard_gateway/tools/plugin_installer.py install opcua_connector_plugin.zip
 
 # 3. 验证安装
-python tools/plugin_installer.py list
+python thingsboard_gateway/tools/plugin_installer.py list
 ```
 
 ### 示例2: 通过REST API管理插件
@@ -439,14 +439,14 @@ class MyCustomConnector(Connector):
 
 ```bash
 # 打包
-python tools/plugin_packager.py \
+python thingsboard_gateway/tools/plugin_packager.py \
   /path/to/my_custom_connector \
   -o my_custom_connector_plugin.zip \
   -t mycustom \
   -v 1.0.0
 
 # 安装
-python tools/plugin_installer.py install my_custom_connector_plugin.zip
+python thingsboard_gateway/tools/plugin_installer.py install my_custom_connector_plugin.zip
 ```
 
 在网关配置中使用：
@@ -503,7 +503,7 @@ python tools/plugin_installer.py install my_custom_connector_plugin.zip
 **解决**:
 ```bash
 # 查看详细错误信息
-python tools/plugin_installer.py install plugin.zip
+python thingsboard_gateway/tools/plugin_installer.py install plugin.zip
 
 # 手动安装依赖
 pip install required-package

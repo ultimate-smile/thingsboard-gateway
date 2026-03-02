@@ -202,7 +202,7 @@
 
 ```bash
 # 1. 打包OPC UA连接器
-python tools/plugin_packager.py \
+python thingsboard_gateway/tools/plugin_packager.py \
   thingsboard_gateway/connectors/opcua \
   -o opcua_plugin.zip \
   -t opcua \
@@ -210,14 +210,14 @@ python tools/plugin_packager.py \
   --deps "asyncua==1.1.5"
 
 # 2. 安装插件（方法A：命令行）
-python tools/plugin_installer.py install opcua_plugin.zip
+python thingsboard_gateway/tools/plugin_installer.py install opcua_plugin.zip
 
 # 2. 安装插件（方法B：REST API）
 curl -X POST http://localhost:9001/api/plugins/upload \
   -F "file=@opcua_plugin.zip"
 
 # 3. 验证安装
-python tools/plugin_installer.py list
+python thingsboard_gateway/tools/plugin_installer.py list
 
 # 4. 在配置中使用
 # config/tb_gateway.json:
@@ -267,10 +267,10 @@ class MyConnector(Connector):
 }
 
 # 3. 打包
-python tools/plugin_packager.py . -o my_plugin.zip -t myprotocol -v 1.0.0
+python thingsboard_gateway/tools/plugin_packager.py . -o my_plugin.zip -t myprotocol -v 1.0.0
 
 # 4. 安装
-python tools/plugin_installer.py install my_plugin.zip
+python thingsboard_gateway/tools/plugin_installer.py install my_plugin.zip
 
 # 5. 使用
 # 在配置中添加type: "myprotocol"的连接器
@@ -315,8 +315,8 @@ python tools/plugin_installer.py install my_plugin.zip
 - `thingsboard_gateway/gateway/tb_gateway_service.py` (修改)
 
 ### 工具
-- `tools/plugin_packager.py` (175行)
-- `tools/plugin_installer.py` (278行)
+- `thingsboard_gateway/tools/plugin_packager.py` (175行)
+- `thingsboard_gateway/tools/plugin_installer.py` (278行)
 
 ### 文档
 - `PLUGIN_SYSTEM_README.md` (559行)

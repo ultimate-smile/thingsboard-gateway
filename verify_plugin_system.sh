@@ -16,7 +16,7 @@
 # 插件系统验证脚本
 
 echo "=========================================="
-echo "ThingsBoard Gateway 插件系统验证"
+echo "插件系统验证"
 echo "=========================================="
 echo ""
 
@@ -31,8 +31,8 @@ FILES=(
     "thingsboard_gateway/gateway/plugin_system/plugin_spec.py"
     "thingsboard_gateway/gateway/plugin_system/plugin_api.py"
     "thingsboard_gateway/gateway/plugin_system/gateway_plugin_integration.py"
-    "tools/plugin_packager.py"
-    "tools/plugin_installer.py"
+    "thingsboard_gateway/tools/plugin_packager.py"
+    "thingsboard_gateway/tools/plugin_installer.py"
     "examples/example_plugin/plugin.json"
     "examples/example_plugin/example_connector.py"
 )
@@ -97,18 +97,18 @@ echo ""
 
 # 检查工具可执行性
 echo "检查工具可执行性..."
-if [ -x "tools/plugin_packager.py" ]; then
+if [ -x "thingsboard_gateway/tools/plugin_packager.py" ]; then
     echo "  ✓ plugin_packager.py 可执行"
 else
     echo "  ! plugin_packager.py 不可执行（尝试修复）"
-    chmod +x tools/plugin_packager.py
+    chmod +x thingsboard_gateway/tools/plugin_packager.py
 fi
 
-if [ -x "tools/plugin_installer.py" ]; then
+if [ -x "thingsboard_gateway/tools/plugin_installer.py" ]; then
     echo "  ✓ plugin_installer.py 可执行"
 else
     echo "  ! plugin_installer.py 不可执行（尝试修复）"
-    chmod +x tools/plugin_installer.py
+    chmod +x thingsboard_gateway/tools/plugin_installer.py
 fi
 
 echo ""

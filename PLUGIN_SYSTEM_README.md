@@ -34,7 +34,7 @@
 
 ```bash
 # 使用打包工具
-python tools/plugin_packager.py \
+python thingsboard_gateway/tools/plugin_packager.py \
   examples/example_plugin \
   -o example_connector_plugin.zip \
   -t example \
@@ -45,7 +45,7 @@ python tools/plugin_packager.py \
 
 ```bash
 # 方法1: 命令行
-python tools/plugin_installer.py install example_connector_plugin.zip
+python thingsboard_gateway/tools/plugin_installer.py install example_connector_plugin.zip
 
 # 方法2: REST API
 curl -X POST http://localhost:9001/api/plugins/upload \
@@ -56,7 +56,7 @@ curl -X POST http://localhost:9001/api/plugins/upload \
 
 ```bash
 # 列出所有插件
-python tools/plugin_installer.py list
+python thingsboard_gateway/tools/plugin_installer.py list
 
 # 或通过API
 curl http://localhost:9001/api/plugins
@@ -77,7 +77,7 @@ thingsboard_gateway/
 ├── tb_utility/
 │   └── tb_loader.py                # 扩展支持动态插件路径
 │
-tools/
+thingsboard_gateway/tools/
 ├── plugin_packager.py              # 打包工具
 └── plugin_installer.py             # 安装工具
 
@@ -96,7 +96,7 @@ examples/
 
 ```bash
 # 1. 将OPC DA连接器打包
-python tools/plugin_packager.py \
+python thingsboard_gateway/tools/plugin_packager.py \
   thingsboard_gateway/connectors/opcda \
   -o opcda_plugin.zip \
   -t opcda \
@@ -104,7 +104,7 @@ python tools/plugin_packager.py \
   --deps "pywin32>=300"
 
 # 2. 安装插件
-python tools/plugin_installer.py install opcda_plugin.zip
+python thingsboard_gateway/tools/plugin_installer.py install opcda_plugin.zip
 
 # 3. 配置连接器
 # 在config/tb_gateway.json中添加：
@@ -169,10 +169,10 @@ class MyConnector(Connector):
 }
 
 # 3. 打包
-python tools/plugin_packager.py . -o my_plugin.zip -t myprotocol -v 1.0.0
+python thingsboard_gateway/tools/plugin_packager.py . -o my_plugin.zip -t myprotocol -v 1.0.0
 
 # 4. 安装
-python tools/plugin_installer.py install my_plugin.zip
+python thingsboard_gateway/tools/plugin_installer.py install my_plugin.zip
 ```
 
 ## REST API端点
@@ -192,7 +192,7 @@ python tools/plugin_installer.py install my_plugin.zip
 ### plugin_packager.py
 
 ```bash
-python tools/plugin_packager.py SOURCE_DIR \
+python thingsboard_gateway/tools/plugin_packager.py SOURCE_DIR \
   -o OUTPUT_FILE \
   -t CONNECTOR_TYPE \
   -v VERSION \
@@ -205,20 +205,20 @@ python tools/plugin_packager.py SOURCE_DIR \
 
 ```bash
 # 列出插件
-python tools/plugin_installer.py list [--enabled]
+python thingsboard_gateway/tools/plugin_installer.py list [--enabled]
 
 # 安装插件
-python tools/plugin_installer.py install PLUGIN_FILE [--force]
+python thingsboard_gateway/tools/plugin_installer.py install PLUGIN_FILE [--force]
 
 # 卸载插件
-python tools/plugin_installer.py uninstall PLUGIN_NAME
+python thingsboard_gateway/tools/plugin_installer.py uninstall PLUGIN_NAME
 
 # 启用/禁用插件
-python tools/plugin_installer.py enable PLUGIN_NAME
-python tools/plugin_installer.py disable PLUGIN_NAME
+python thingsboard_gateway/tools/plugin_installer.py enable PLUGIN_NAME
+python thingsboard_gateway/tools/plugin_installer.py disable PLUGIN_NAME
 
 # 查看插件信息
-python tools/plugin_installer.py info PLUGIN_NAME
+python thingsboard_gateway/tools/plugin_installer.py info PLUGIN_NAME
 ```
 
 ## 插件结构规范
@@ -325,7 +325,7 @@ REST API依赖（可选）：
 ### 问题：插件无法加载
 
 **检查**:
-1. 插件是否已启用：`python tools/plugin_installer.py list`
+1. 插件是否已启用：`python thingsboard_gateway/tools/plugin_installer.py list`
 2. 查看网关日志是否有错误信息
 3. 验证`plugin.json`中的`entry_point`和`module_name`
 

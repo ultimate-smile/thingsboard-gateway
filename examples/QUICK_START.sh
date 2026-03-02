@@ -41,7 +41,7 @@ echo ""
 
 # 步骤2: 打包示例插件
 echo "步骤 2: 打包示例插件..."
-python3 tools/plugin_packager.py \
+python3 thingsboard_gateway/tools/plugin_packager.py \
     examples/example_plugin \
     -o example_connector_plugin.zip \
     -t example \
@@ -54,20 +54,20 @@ echo ""
 
 # 步骤3: 安装插件
 echo "步骤 3: 安装示例插件..."
-python3 tools/plugin_installer.py install example_connector_plugin.zip
+python3 thingsboard_gateway/tools/plugin_installer.py install example_connector_plugin.zip
 
 echo "✓ 插件安装完成"
 echo ""
 
 # 步骤4: 列出插件
 echo "步骤 4: 列出已安装的插件..."
-python3 tools/plugin_installer.py list
+python3 thingsboard_gateway/tools/plugin_installer.py list
 
 echo ""
 
 # 步骤5: 显示插件详情
 echo "步骤 5: 显示插件详细信息..."
-python3 tools/plugin_installer.py info example_connector_plugin
+python3 thingsboard_gateway/tools/plugin_installer.py info example_connector_plugin
 
 echo ""
 echo "==================================="
@@ -76,7 +76,7 @@ echo "==================================="
 echo ""
 echo "接下来您可以："
 echo "1. 查看插件信息："
-echo "   python3 tools/plugin_installer.py info example_connector_plugin"
+echo "   python3 thingsboard_gateway/tools/plugin_installer.py info example_connector_plugin"
 echo ""
 echo "2. 在网关配置中使用插件："
 echo "   添加以下配置到 config/tb_gateway.json:"
