@@ -297,6 +297,11 @@ python thingsboard_gateway/tools/plugin_installer.py install my_plugin.zip
 
 ### 5. Plugin API认证配置（推荐）
 
+
+> 注意：启用认证时必须显式设置 `plugins.api_auth.type`（`static_token` 或 `thingsboard_jwt`）。
+> 如果 `api_auth` 存在但缺少 `type`，Plugin API 将拒绝启动，避免误配置导致未鉴权开放。
+
+
 ```json
 {
   "plugins": {
