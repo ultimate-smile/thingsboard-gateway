@@ -18,11 +18,15 @@
 """
 
 import json
+import hmac
 import logging
 import os
 import tempfile
+import time
 from pathlib import Path
-from typing import Optional
+from typing import Dict, Optional, Tuple
+
+import requests
 
 try:
     from flask import Flask, request, jsonify, send_file
@@ -46,7 +50,11 @@ class PluginAPI:
     提供RESTful API用于插件管理
     """
     
-    def __init__(self, plugin_manager: PluginManager, host: str = "0.0.0.0", port: int = 9001):
+    def __init__(self,
+                 plugin_manager: PluginManager,
+                 host: str = "0.0.0.0",
+                 port: int = 9001,
+                 auth_config: Optional[Dict] = None):
         """
         初始化插件API
         
@@ -62,19 +70,128 @@ class PluginAPI:
         self.host = host
         self.port = port
         self.app = Flask(__name__)
+        self.auth_config = auth_config or {}
+        self._auth_cache: Dict[str, Tuple[float, Dict]] = {}
         
         # 配置上传文件夹
         self.upload_folder = Path(tempfile.gettempdir()) / "gateway_plugins_upload"
         self.upload_folder.mkdir(parents=True, exist_ok=True)
         self.app.config['UPLOAD_FOLDER'] = str(self.upload_folder)
         self.app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024  # 100MB
+
+        self._init_auth_config()
         
         self._register_routes()
         
         log.info("Plugin API initialized on %s:%s", host, port)
+
+    def _init_auth_config(self):
+        self.auth_type = self.auth_config.get('type', 'disabled').lower()
+        self.auth_header = self.auth_config.get('header', 'Authorization')
+        self.token_prefix = self.auth_config.get('token_prefix', 'Bearer ')
+
+        self.static_tokens = {
+            token.strip() for token in self.auth_config.get('tokens', []) if token and token.strip()
+        }
+
+        self.tb_validation_url = self.auth_config.get('validation_url')
+        self.tb_auth_header = self.auth_config.get('tb_auth_header', 'X-Authorization')
+        self.tb_cache_ttl = int(self.auth_config.get('cache_ttl_sec', 60))
+        self.tb_allowed_authorities = set(self.auth_config.get('allowed_authorities', ['TENANT_ADMIN', 'SYS_ADMIN']))
+
+        if self.auth_type not in {'disabled', 'static_token', 'thingsboard_jwt'}:
+            log.warning("Unknown plugin API auth type '%s', fallback to disabled", self.auth_type)
+            self.auth_type = 'disabled'
+
+        if self.auth_type == 'static_token' and not self.static_tokens:
+            log.warning("Plugin API static token auth is enabled but no tokens are configured")
+
+        if self.auth_type == 'thingsboard_jwt' and not self.tb_validation_url:
+            raise ValueError("Plugin API auth type 'thingsboard_jwt' requires 'validation_url'")
+
+        if self.auth_type == 'disabled':
+            log.warning("Plugin API auth is disabled. Do not expose %s:%s to untrusted networks", self.host, self.port)
+        else:
+            log.info("Plugin API auth enabled: %s", self.auth_type)
+
+    def _extract_token(self) -> Optional[str]:
+        auth_value = request.headers.get(self.auth_header, '').strip()
+
+        if not auth_value:
+            return None
+
+        if self.token_prefix and auth_value.startswith(self.token_prefix):
+            return auth_value[len(self.token_prefix):].strip()
+
+        if self.token_prefix:
+            return None
+
+        return auth_value
+
+    def _validate_tb_jwt(self, token: str) -> Tuple[bool, Optional[str]]:
+        cache_record = self._auth_cache.get(token)
+        now = time.monotonic()
+        if cache_record and cache_record[0] > now:
+            user_info = cache_record[1]
+            authority = user_info.get('authority')
+            if authority in self.tb_allowed_authorities:
+                return True, None
+            return False, f"Insufficient authority: {authority}"
+
+        try:
+            response = requests.get(
+                self.tb_validation_url,
+                headers={self.tb_auth_header: f"Bearer {token}"},
+                timeout=5
+            )
+        except requests.RequestException as e:
+            log.warning("Failed to validate token against ThingsBoard: %s", e)
+            return False, "Token validation service unavailable"
+
+        if response.status_code != 200:
+            return False, "Invalid or expired token"
+
+        try:
+            user_info = response.json()
+        except json.JSONDecodeError:
+            return False, "Invalid validation response"
+
+        authority = user_info.get('authority')
+        if authority not in self.tb_allowed_authorities:
+            return False, f"Insufficient authority: {authority}"
+
+        self._auth_cache[token] = (now + self.tb_cache_ttl, user_info)
+        return True, None
+
+    def _authorize_request(self):
+        if self.auth_type == 'disabled':
+            return None
+
+        token = self._extract_token()
+        if not token:
+            return jsonify({'success': False, 'error': 'Missing or invalid auth token'}), 401
+
+        if self.auth_type == 'static_token':
+            for configured_token in self.static_tokens:
+                if hmac.compare_digest(configured_token, token):
+                    return None
+            return jsonify({'success': False, 'error': 'Invalid auth token'}), 401
+
+        if self.auth_type == 'thingsboard_jwt':
+            valid, error = self._validate_tb_jwt(token)
+            if not valid:
+                return jsonify({'success': False, 'error': error}), 403
+
+        return None
     
     def _register_routes(self):
         """注册API路由"""
+
+        @self.app.before_request
+        def authorize_request():
+            if request.path == '/api/plugins/health' or request.method == 'OPTIONS':
+                return None
+            return self._authorize_request()
         
         @self.app.route('/api/plugins', methods=['GET'])
         def list_plugins():

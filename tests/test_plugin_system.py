@@ -24,11 +24,13 @@ import tempfile
 import unittest
 import zipfile
 from pathlib import Path
+from unittest.mock import patch, Mock
 
 # 添加项目路径
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from thingsboard_gateway.gateway.plugin_system.plugin_manager import PluginManager
+from thingsboard_gateway.gateway.plugin_system.plugin_api import PluginAPI, FLASK_AVAILABLE
 from thingsboard_gateway.gateway.plugin_system.plugin_spec import PluginMetadata, PluginType
 
 
@@ -272,6 +274,68 @@ class {connector_type.capitalize()}Connector(Connector):
         # 强制安装应该成功
         success3, _ = self.plugin_manager.install_plugin(plugin_package, force=True)
         self.assertTrue(success3)
+
+
+@unittest.skipUnless(FLASK_AVAILABLE, "Flask is required for PluginAPI auth tests")
+class TestPluginApiAuth(unittest.TestCase):
+    """插件API认证测试"""
+
+    def setUp(self):
+        self.temp_dir = tempfile.mkdtemp()
+        self.plugins_dir = os.path.join(self.temp_dir, "plugins")
+        self.config_dir = os.path.join(self.temp_dir, "config")
+
+        os.makedirs(self.plugins_dir, exist_ok=True)
+        os.makedirs(self.config_dir, exist_ok=True)
+
+        self.plugin_manager = PluginManager(
+            plugins_dir=self.plugins_dir,
+            config_dir=self.config_dir
+        )
+
+    def tearDown(self):
+        import shutil
+        if os.path.exists(self.temp_dir):
+            shutil.rmtree(self.temp_dir)
+
+    def test_static_token_auth_blocks_unauthorized_requests(self):
+        api = PluginAPI(
+            plugin_manager=self.plugin_manager,
+            auth_config={
+                "type": "static_token",
+                "tokens": ["secret-token"]
+            }
+        )
+
+        client = api.get_app().test_client()
+
+        unauthorized = client.get('/api/plugins')
+        self.assertEqual(unauthorized.status_code, 401)
+
+        authorized = client.get('/api/plugins', headers={"Authorization": "Bearer secret-token"})
+        self.assertEqual(authorized.status_code, 200)
+
+    @patch('thingsboard_gateway.gateway.plugin_system.plugin_api.requests.get')
+    def test_thingsboard_jwt_auth_validates_authority(self, mock_get):
+        response = Mock()
+        response.status_code = 200
+        response.json.return_value = {"authority": "TENANT_ADMIN"}
+        mock_get.return_value = response
+
+        api = PluginAPI(
+            plugin_manager=self.plugin_manager,
+            auth_config={
+                "type": "thingsboard_jwt",
+                "validation_url": "http://tb.local/api/auth/user",
+                "allowed_authorities": ["TENANT_ADMIN"]
+            }
+        )
+
+        client = api.get_app().test_client()
+        result = client.get('/api/plugins', headers={"Authorization": "Bearer jwt-token"})
+
+        self.assertEqual(result.status_code, 200)
+        mock_get.assert_called_once()
 
 
 def run_tests():

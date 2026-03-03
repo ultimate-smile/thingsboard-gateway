@@ -212,8 +212,9 @@ python thingsboard_gateway/tools/plugin_packager.py \
 # 2. 安装插件（方法A：命令行）
 python thingsboard_gateway/tools/plugin_installer.py install opcua_plugin.zip
 
-# 2. 安装插件（方法B：REST API）
+# 2. 安装插件（方法B：REST API，建议开启认证）
 curl -X POST http://localhost:9001/api/plugins/upload \
+  -H "Authorization: Bearer <plugin_api_token>" \
   -F "file=@opcua_plugin.zip"
 
 # 3. 验证安装
@@ -292,6 +293,42 @@ python thingsboard_gateway/tools/plugin_installer.py install my_plugin.zip
 - 依赖检查
 - 文件大小限制（100MB）
 - ZIP炸弹防护
+- API认证（支持静态Token或ThingsBoard JWT联动）
+
+### 5. Plugin API认证配置（推荐）
+
+```json
+{
+  "plugins": {
+    "enabled": true,
+    "enable_api": true,
+    "api_host": "127.0.0.1",
+    "api_port": 9001,
+    "api_auth": {
+      "type": "thingsboard_jwt",
+      "header": "Authorization",
+      "token_prefix": "Bearer ",
+      "validation_url": "http://thingsboard:8080/api/auth/user",
+      "tb_auth_header": "X-Authorization",
+      "allowed_authorities": ["TENANT_ADMIN", "SYS_ADMIN"],
+      "cache_ttl_sec": 60
+    }
+  }
+}
+```
+
+静态Token模式示例：
+
+```json
+{
+  "plugins": {
+    "api_auth": {
+      "type": "static_token",
+      "tokens": ["replace-with-long-random-token"]
+    }
+  }
+}
+```
 
 ### 4. 可扩展性
 - 清晰的插件规范
