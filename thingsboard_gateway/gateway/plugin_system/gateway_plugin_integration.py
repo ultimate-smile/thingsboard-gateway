@@ -81,7 +81,11 @@ class GatewayPluginIntegration:
                     auth_config=self.plugin_config.get('api_auth', {})
                 )
             except ImportError as e:
-                log.warning("Plugin API is disabled due to missing dependencies: %s", e)
+                log.warning("Plugin API is disabled due to missing dependencies: %s. "
+                            "Install required packages, for example: pip install Flask", e)
+                self.enable_api = False
+            except Exception as e:
+                log.error("Plugin API is disabled due to initialization error: %s", e, exc_info=True)
                 self.enable_api = False
         
         log.info("Gateway plugin integration initialized")

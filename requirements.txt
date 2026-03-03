@@ -9,6 +9,7 @@ orjson
 pybase64
 urllib3>=2.3.0
 requests>=2.32.3
+Flask>=3.0.0
 python-dateutil
 grpcio
 mmh3
