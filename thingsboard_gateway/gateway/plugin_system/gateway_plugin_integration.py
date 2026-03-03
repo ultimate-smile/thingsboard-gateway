@@ -38,7 +38,12 @@ class GatewayPluginIntegration:
     负责将插件系统集成到ThingsBoard网关服务中
     """
     
-    def __init__(self, config_dir: str, enable_api: bool = True, api_host: str = "0.0.0.0", api_port: int = 9001):
+    def __init__(self,
+                 config_dir: str,
+                 enable_api: bool = True,
+                 api_host: str = "0.0.0.0",
+                 api_port: int = 9001,
+                 plugin_config: Optional[dict] = None):
         """
         初始化插件集成
         
@@ -50,6 +55,7 @@ class GatewayPluginIntegration:
         """
         self.config_dir = Path(config_dir)
         self.enable_api = enable_api
+        self.plugin_config = plugin_config or {}
         
         # 设置插件目录
         self.plugins_dir = self.config_dir / "plugins"
@@ -71,10 +77,15 @@ class GatewayPluginIntegration:
                 self.api_server = PluginAPI(
                     plugin_manager=self.plugin_manager,
                     host=api_host,
-                    port=api_port
+                    port=api_port,
+                    auth_config=self.plugin_config.get('api_auth', {})
                 )
             except ImportError as e:
-                log.warning("Plugin API is disabled due to missing dependencies: %s", e)
+                log.warning("Plugin API is disabled due to missing dependencies: %s. "
+                            "Install required packages, for example: pip install Flask", e)
+                self.enable_api = False
+            except Exception as e:
+                log.error("Plugin API is disabled due to initialization error: %s", e, exc_info=True)
                 self.enable_api = False
         
         log.info("Gateway plugin integration initialized")
@@ -195,7 +206,8 @@ def create_plugin_integration(gateway_service) -> Optional[GatewayPluginIntegrat
             config_dir=config_dir,
             enable_api=plugin_config.get('enable_api', True),
             api_host=plugin_config.get('api_host', '0.0.0.0'),
-            api_port=plugin_config.get('api_port', 9001)
+            api_port=plugin_config.get('api_port', 9001),
+            plugin_config=plugin_config
         )
         
         # 启动插件系统
