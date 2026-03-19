@@ -20,7 +20,7 @@
         "deviceNameExpression": "Simulation",
         "deviceNameExpressionSource": "identifier",
         "deviceProfileExpressionSource": "identifier",
-        "deviceProfileExpression": "default"
+        "deviceProfileExpression": "${ns=3;i=1015}"
       },
       "attributes": [],
       "timeseries": [
