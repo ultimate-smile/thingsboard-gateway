@@ -315,6 +315,25 @@ class TestPluginApiAuth(unittest.TestCase):
         authorized = client.get('/api/plugins', headers={"Authorization": "Bearer secret-token"})
         self.assertEqual(authorized.status_code, 200)
 
+
+    def test_auth_config_without_type_is_rejected(self):
+        with self.assertRaises(ValueError):
+            PluginAPI(
+                plugin_manager=self.plugin_manager,
+                auth_config={
+                    "validation_url": "http://tb.local/api/auth/user"
+                }
+            )
+
+    def test_unknown_auth_type_is_rejected(self):
+        with self.assertRaises(ValueError):
+            PluginAPI(
+                plugin_manager=self.plugin_manager,
+                auth_config={
+                    "type": "jwt"
+                }
+            )
+
     @patch('thingsboard_gateway.gateway.plugin_system.plugin_api.requests.get')
     def test_thingsboard_jwt_auth_validates_authority(self, mock_get):
         response = Mock()

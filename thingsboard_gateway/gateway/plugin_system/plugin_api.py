@@ -86,7 +86,11 @@ class PluginAPI:
         log.info("Plugin API initialized on %s:%s", host, port)
 
     def _init_auth_config(self):
-        self.auth_type = self.auth_config.get('type', 'disabled').lower()
+        auth_type_value = self.auth_config.get('type')
+        if self.auth_config and auth_type_value is None:
+            raise ValueError("Plugin API auth config is present but 'type' is missing")
+
+        self.auth_type = (auth_type_value or 'disabled').lower()
         self.auth_header = self.auth_config.get('header', 'Authorization')
         self.token_prefix = self.auth_config.get('token_prefix', 'Bearer ')
 
@@ -100,8 +104,7 @@ class PluginAPI:
         self.tb_allowed_authorities = set(self.auth_config.get('allowed_authorities', ['TENANT_ADMIN', 'SYS_ADMIN']))
 
         if self.auth_type not in {'disabled', 'static_token', 'thingsboard_jwt'}:
-            log.warning("Unknown plugin API auth type '%s', fallback to disabled", self.auth_type)
-            self.auth_type = 'disabled'
+            raise ValueError(f"Unknown plugin API auth type: {self.auth_type}")
 
         if self.auth_type == 'static_token' and not self.static_tokens:
             log.warning("Plugin API static token auth is enabled but no tokens are configured")

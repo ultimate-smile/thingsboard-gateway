@@ -77,6 +77,7 @@ setup(
         'simplejson',
         'urllib3>=2.3.0',
         'requests>=2.32.3',
+        'Flask>=3.0.0',
         'mmh3',
         'grpcio',
         'protobuf',
