@@ -1,4 +1,19 @@
 {
+  "plugins": {
+    "enabled": true,
+    "enable_api": true,
+    "api_host": "127.0.0.1",
+    "api_port": 9001,
+    "api_auth": {
+      "type": "thingsboard_jwt",
+      "header": "Authorization",
+      "token_prefix": "Bearer ",
+      "validation_url": "http://127.0.0.1:8080/api/auth/user",
+      "tb_auth_header": "X-Authorization",
+      "allowed_authorities": ["TENANT_ADMIN", "SYS_ADMIN"],
+      "cache_ttl_sec": 60
+    }
+  },
   "thingsboard": {
     "host": "127.0.0.1",
     "port": 1883,
