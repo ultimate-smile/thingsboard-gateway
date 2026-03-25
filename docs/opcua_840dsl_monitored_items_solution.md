@@ -351,6 +351,105 @@
 4. 若总和仍高，优先做点位压缩（状态字、事件化、快照化），而不是继续“只拆批次不减总量”。
 5. 长期仍建议采用“单边缘采集器 + 上层分发”架构，避免多个系统重复消耗 840D sl。
 
+### 10.6 `opcua.json` 分批配置样例（ThingsBoard Gateway）
+
+下面给一个可落地的配置样例，目标是“先分批、再控频、再核算总量”。
+
+#### 样例 1：一个 OPCUA 连接内做分批（仍为订阅模式）
+
+```json
+{
+  "server": {
+    "url": "opc.tcp://192.168.1.10:4840",
+    "timeoutInMillis": 5000,
+    "enableSubscriptions": true,
+    "subCheckPeriodInMillis": 200,
+    "subscriptionProcessBatchSize": 100,
+    "subDataMaxBatchSize": 500,
+    "subDataMinBatchCreationTimeMs": 200,
+    "scanPeriodInMillis": 3600000,
+    "pollPeriodInMillis": 5000,
+    "security": "None",
+    "identity": {
+      "type": "anonymous"
+    }
+  },
+  "mapping": [
+    {
+      "deviceNodeSource": "path",
+      "deviceNodePattern": "Root\\.Objects\\.Machine1",
+      "deviceInfo": {
+        "deviceNameExpression": "Machine1_Realtime",
+        "deviceNameExpressionSource": "constant",
+        "deviceProfileExpression": "CNC",
+        "deviceProfileExpressionSource": "constant"
+      },
+      "timeseries": [
+        {
+          "key": "runState",
+          "type": "path",
+          "value": "${Root\\.Objects\\.Machine1\\.RunState}"
+        },
+        {
+          "key": "alarmState",
+          "type": "path",
+          "value": "${Root\\.Objects\\.Machine1\\.AlarmState}"
+        },
+        {
+          "key": "programNo",
+          "type": "path",
+          "value": "${Root\\.Objects\\.Machine1\\.ProgramNo}"
+        }
+      ],
+      "attributes": []
+    },
+    {
+      "deviceNodeSource": "path",
+      "deviceNodePattern": "Root\\.Objects\\.Machine1",
+      "deviceInfo": {
+        "deviceNameExpression": "Machine1_Normal",
+        "deviceNameExpressionSource": "constant",
+        "deviceProfileExpression": "CNC",
+        "deviceProfileExpressionSource": "constant"
+      },
+      "timeseries": [
+        {
+          "key": "mode",
+          "type": "path",
+          "value": "${Root\\.Objects\\.Machine1\\.Mode}"
+        },
+        {
+          "key": "feedOverride",
+          "type": "path",
+          "value": "${Root\\.Objects\\.Machine1\\.FeedOverride}"
+        },
+        {
+          "key": "spindleOverride",
+          "type": "path",
+          "value": "${Root\\.Objects\\.Machine1\\.SpindleOverride}"
+        }
+      ],
+      "attributes": []
+    }
+  ]
+}
+```
+
+说明：
+
+- `subscriptionProcessBatchSize`：网关对订阅节点分批处理的大小（不是 840D sl 总上限）。
+- `subDataMaxBatchSize` / `subDataMinBatchCreationTimeMs`：网关侧通知聚合参数，影响网关处理节奏。
+- `mapping` 中拆成多组后，便于按业务分层，但**总监控项负载仍需合并计算**。
+
+#### 样例 2：建议的“双连接分工”做法（高频订阅 + 低频轮询）
+
+实际项目更推荐将“核心实时”与“低频统计”拆成两个 OPCUA Connector（两个独立配置文件）：
+
+- `opcua_realtime.json`：`enableSubscriptions=true`，只放少量高价值实时点；
+- `opcua_snapshot.json`：`enableSubscriptions=false`，通过 `pollPeriodInMillis` 读取低频统计/快照点。
+
+这样比“把所有点都放在一个订阅连接里仅靠分批”更稳定，也更容易把总负载控制在 840D sl 的安全区间。
+
 ## 11. 根治方案三：引入单一边缘采集器
 
 ### 11.1 架构原则

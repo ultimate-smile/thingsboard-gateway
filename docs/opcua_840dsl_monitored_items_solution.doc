@@ -354,6 +354,105 @@
 4. \u-32027?\u24635?\u21644?\u20173?\u-25896?\u-244?\u20248?\u20808?\u20570?\u28857?\u20301?\u21387?\u32553?\u-248?\u29366?\u24577?\u23383?\u12289?\u20107?\u20214?\u21270?\u12289?\u24555?\u29031?\u21270?\u-247?\u-244?\u-32756?\u19981?\u26159?\u32487?\u32493?\u8220?\u21482?\u25286?\u25209?\u27425?\u19981?\u20943?\u24635?\u-28209?\u8221?\u12290?\par
 5. \u-27265?\u26399?\u20173?\u24314?\u-29778?\u-28217?\u29992?\u8220?\u21333?\u-28743?\u32536?\u-28217?\u-26938?\u22120? + \u19978?\u23618?\u20998?\u21457?\u8221?\u26550?\u26500?\u-244?\u-28545?\u20813?\u22810?\u20010?\u31995?\u32479?\u-28211?\u22797?\u28040?\u-32745? 840D sl\u12290?\par
 \par
+\b 10.6 `opcua.json` \u20998?\u25209?\u-28339?\u32622?\u26679?\u20363?\u-248?ThingsBoard Gateway\u-247?\b0\par
+\par
+\u19979?\u-26782?\u32473?\u19968?\u20010?\u21487?\u-31683?\u22320?\u30340?\u-28339?\u32622?\u26679?\u20363?\u-244?\u30446?\u26631?\u26159?\u8220?\u20808?\u20998?\u25209?\u12289?\u20877?\u25511?\u-26479?\u12289?\u20877?\u26680?\u31639?\u24635?\u-28209?\u8221?\u12290?\par
+\par
+#### \u26679?\u20363? 1\u-230?\u19968?\u20010? OPCUA \u-28706?\u25509?\u20869?\u20570?\u20998?\u25209?\u-248?\u20173?\u20026?\u-29790?\u-27131?\u27169?\u24335?\u-247?\par
+\par
+```json\par
+\{\par
+  "server": \{\par
+    "url": "opc.tcp://192.168.1.10:4840",\par
+    "timeoutInMillis": 5000,\par
+    "enableSubscriptions": true,\par
+    "subCheckPeriodInMillis": 200,\par
+    "subscriptionProcessBatchSize": 100,\par
+    "subDataMaxBatchSize": 500,\par
+    "subDataMinBatchCreationTimeMs": 200,\par
+    "scanPeriodInMillis": 3600000,\par
+    "pollPeriodInMillis": 5000,\par
+    "security": "None",\par
+    "identity": \{\par
+      "type": "anonymous"\par
+    \}\par
+  \},\par
+  "mapping": [\par
+    \{\par
+      "deviceNodeSource": "path",\par
+      "deviceNodePattern": "Root\\\\.Objects\\\\.Machine1",\par
+      "deviceInfo": \{\par
+        "deviceNameExpression": "Machine1_Realtime",\par
+        "deviceNameExpressionSource": "constant",\par
+        "deviceProfileExpression": "CNC",\par
+        "deviceProfileExpressionSource": "constant"\par
+      \},\par
+      "timeseries": [\par
+        \{\par
+          "key": "runState",\par
+          "type": "path",\par
+          "value": "$\{Root\\\\.Objects\\\\.Machine1\\\\.RunState\}"\par
+        \},\par
+        \{\par
+          "key": "alarmState",\par
+          "type": "path",\par
+          "value": "$\{Root\\\\.Objects\\\\.Machine1\\\\.AlarmState\}"\par
+        \},\par
+        \{\par
+          "key": "programNo",\par
+          "type": "path",\par
+          "value": "$\{Root\\\\.Objects\\\\.Machine1\\\\.ProgramNo\}"\par
+        \}\par
+      ],\par
+      "attributes": []\par
+    \},\par
+    \{\par
+      "deviceNodeSource": "path",\par
+      "deviceNodePattern": "Root\\\\.Objects\\\\.Machine1",\par
+      "deviceInfo": \{\par
+        "deviceNameExpression": "Machine1_Normal",\par
+        "deviceNameExpressionSource": "constant",\par
+        "deviceProfileExpression": "CNC",\par
+        "deviceProfileExpressionSource": "constant"\par
+      \},\par
+      "timeseries": [\par
+        \{\par
+          "key": "mode",\par
+          "type": "path",\par
+          "value": "$\{Root\\\\.Objects\\\\.Machine1\\\\.Mode\}"\par
+        \},\par
+        \{\par
+          "key": "feedOverride",\par
+          "type": "path",\par
+          "value": "$\{Root\\\\.Objects\\\\.Machine1\\\\.FeedOverride\}"\par
+        \},\par
+        \{\par
+          "key": "spindleOverride",\par
+          "type": "path",\par
+          "value": "$\{Root\\\\.Objects\\\\.Machine1\\\\.SpindleOverride\}"\par
+        \}\par
+      ],\par
+      "attributes": []\par
+    \}\par
+  ]\par
+\}\par
+```\par
+\par
+\u-29708?\u26126?\u-230?\par
+\par
+\li360 \bullet\tab `subscriptionProcessBatchSize`\u-230?\u32593?\u20851?\u23545?\u-29790?\u-27131?\u-32126?\u28857?\u20998?\u25209?\u22788?\u29702?\u30340?\u22823?\u23567?\u-248?\u19981?\u26159? 840D sl \u24635?\u19978?\u-27056?\u-247?\u12290?\li0\par
+\li360 \bullet\tab `subDataMaxBatchSize` / `subDataMinBatchCreationTimeMs`\u-230?\u32593?\u20851?\u20391?\u-28646?\u30693?\u-32678?\u21512?\u21442?\u25968?\u-244?\u24433?\u21709?\u32593?\u20851?\u22788?\u29702?\u-32126?\u22863?\u12290?\li0\par
+\li360 \bullet\tab `mapping` \u20013?\u25286?\u25104?\u22810?\u32452?\u21518?\u-244?\u20415?\u20110?\u25353?\u19994?\u21153?\u20998?\u23618?\u-244?\u20294?**\u24635?\u30417?\u25511?\u-26503?\u-29409?\u-28803?\u20173?\u-26880?\u21512?\u24182?\u-29791?\u31639?**\u12290?\li0\par
+\par
+#### \u26679?\u20363? 2\u-230?\u24314?\u-29778?\u30340?\u8220?\u21452?\u-28706?\u25509?\u20998?\u24037?\u8221?\u20570?\u27861?\u-248?\u-25896?\u-26479?\u-29790?\u-27131? + \u20302?\u-26479?\u-28818?\u-29726?\u-247?\par
+\par
+\u23454?\u-27067?\u-26503?\u30446?\u26356?\u25512?\u-31920?\u23558?\u8220?\u26680?\u24515?\u23454?\u26102?\u8221?\u19982?\u8220?\u20302?\u-26479?\u32479?\u-29791?\u8221?\u25286?\u25104?\u20004?\u20010? OPCUA Connector\u-248?\u20004?\u20010?\u29420?\u31435?\u-28339?\u32622?\u25991?\u20214?\u-247?\u-230?\par
+\par
+\li360 \bullet\tab `opcua_realtime.json`\u-230?`enableSubscriptions=true`\u-244?\u21482?\u25918?\u23569?\u-28209?\u-25896?\u20215?\u20540?\u23454?\u26102?\u28857?\u-229?\li0\par
+\li360 \bullet\tab `opcua_snapshot.json`\u-230?`enableSubscriptions=false`\u-244?\u-28646?\u-28729? `pollPeriodInMillis` \u-29701?\u21462?\u20302?\u-26479?\u32479?\u-29791?/\u24555?\u29031?\u28857?\u12290?\li0\par
+\par
+\u-28711?\u26679?\u27604?\u8220?\u25226?\u25152?\u26377?\u28857?\u-28419?\u25918?\u22312?\u19968?\u20010?\u-29790?\u-27131?\u-28706?\u25509?\u-28212?\u20165?\u-26784?\u20998?\u25209?\u8221?\u26356?\u31283?\u23450?\u-244?\u20063?\u26356?\u23481?\u26131?\u25226?\u24635?\u-29409?\u-28803?\u25511?\u21046?\u22312? 840D sl \u30340?\u23433?\u20840?\u21306?\u-27148?\u12290?\par
+\par
 \b\fs28 11. \u26681?\u27835?\u26041?\u26696?\u19977?\u-230?\u24341?\u20837?\u21333?\u19968?\u-28743?\u32536?\u-28217?\u-26938?\u22120?\b0\fs24\par
 \par
 \b 11.1 \u26550?\u26500?\u21407?\u21017?\b0\par
